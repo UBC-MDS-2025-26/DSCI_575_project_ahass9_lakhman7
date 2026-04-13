@@ -1,7 +1,12 @@
 # Milestone 1 — Qualitative Evaluation: BM25 vs Semantic Search
 
 ## Dataset
-Amazon All_Beauty reviews — 70,000 documents indexed using BM25 (rank-bm25) and Semantic Search (all-MiniLM-L6-v2 + ChromaDB).
+
+**Dataset:** All_Beauty — 70,000 documents  
+**Retrieval methods:** BM25 (rank-bm25) and Semantic Search (all-MiniLM-L6-v2 + ChromaDB)  
+**Evaluation:** 10 queries across easy, medium, and complex difficulty levels
+
+---
 
 ---
 
