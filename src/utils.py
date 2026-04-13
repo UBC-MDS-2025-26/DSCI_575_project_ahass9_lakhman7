@@ -93,3 +93,18 @@ def load_corpus(reviews_path, meta_path, max_rows=None):
 
     print(f"Corpus built: {len(corpus)} documents")
     return corpus
+
+def save_pickle(obj, path):
+    """Save an object to a pickle file."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'wb') as f:
+        pickle.dump(obj, f)
+    print(f"Saved to {path}")
+
+
+def load_pickle(path):
+    """Load an object from a pickle file."""
+    with open(path, 'rb') as f:
+        obj = pickle.load(f)
+    print(f"Loaded from {path}")
+    return obj
