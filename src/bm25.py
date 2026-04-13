@@ -66,3 +66,31 @@ def bm25_search(query, bm25, corpus, top_k=5):
     
     return results
 
+if __name__ == "__main__":
+    import os
+
+    reviews_path = os.path.join('data', 'raw', 'All_Beauty.jsonl')
+    meta_path = os.path.join('data', 'raw', 'meta_All_Beauty.jsonl')
+
+    # Load corpus
+    corpus = load_corpus(reviews_path, meta_path)
+
+    # Build index
+    bm25, tokenized_corpus = build_bm25_index(corpus)
+
+    # Save
+    save_pickle(bm25, os.path.join('data', 'processed', 'bm25_index.pkl'))
+    save_pickle(corpus, os.path.join('data', 'processed', 'corpus.pkl'))
+    save_pickle(tokenized_corpus, os.path.join('data', 'processed', 'tokenized_corpus.pkl'))
+
+    # Test search
+    query = "moisturizer for dry skin"
+    results = bm25_search(query, bm25, corpus, top_k=5)
+    print(f"\nTop 5 results for: '{query}'")
+    for i, r in enumerate(results):
+        print(f"\n{i+1}. {r['display_title']}")
+        print(f"   Score: {r['score']}")
+        print(f"   Rating: {r['rating']}")
+
+
+        
