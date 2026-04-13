@@ -102,4 +102,26 @@ def semantic_search(query, collection, model, top_k=5):
     
     return output
 
+if __name__ == "__main__":
+    import os
+
+    reviews_path = os.path.join('data', 'raw', 'All_Beauty.jsonl')
+    meta_path = os.path.join('data', 'raw', 'meta_All_Beauty.jsonl')
+
+    # Load corpus
+    corpus = load_corpus(reviews_path, meta_path)
+
+    # Build index
+    collection, model = build_semantic_index(corpus)
+
+    # Test search
+    query = "moisturizer for dry skin"
+    results = semantic_search(query, collection, model, top_k=5)
+    print(f"\nTop 5 results for: '{query}'")
+    for i, r in enumerate(results):
+        print(f"\n{i+1}. {r['display_title']}")
+        print(f"   Score: {r['score']}")
+        print(f"   Rating: {r['rating']}")
+
+
 
