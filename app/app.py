@@ -18,3 +18,18 @@ st.set_page_config(
 
 st.title("💄 Beauty Product Search")
 st.markdown("Search through Amazon All_Beauty reviews using BM25 or Semantic Search.")
+
+@st.cache_resource
+def load_bm25():
+    bm25 = load_pickle(os.path.join('data', 'processed', 'bm25_index.pkl'))
+    corpus = load_pickle(os.path.join('data', 'processed', 'corpus.pkl'))
+    return bm25, corpus
+
+
+@st.cache_resource
+def load_semantic():
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    client = chromadb.PersistentClient(path=os.path.join('data', 'processed', 'chroma'))
+    collection = client.get_collection("beauty_reviews")
+    return collection, model
+
