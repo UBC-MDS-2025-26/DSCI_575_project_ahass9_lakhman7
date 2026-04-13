@@ -53,3 +53,18 @@ if query:
             collection, model = load_semantic()
             results = semantic_search(query, collection, model, top_k=top_k)
 
+# Display results
+    for i, r in enumerate(results):
+        st.markdown(f"---")
+        col1, col2 = st.columns([3, 1])
+        
+        with col1:
+            st.markdown(f"**{i+1}. {r['display_title'].title()}**")
+            st.markdown(f"📝 {r['review_text'][:200]}...")
+        
+        with col2:
+            rating = r.get('rating', 0)
+            stars = "⭐" * int(rating)
+            st.markdown(f"{stars} ({rating})")
+            st.markdown(f"**Score:** `{r['score']}`")
+
