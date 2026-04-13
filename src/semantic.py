@@ -108,8 +108,8 @@ if __name__ == "__main__":
     reviews_path = os.path.join('data', 'raw', 'All_Beauty.jsonl')
     meta_path = os.path.join('data', 'raw', 'meta_All_Beauty.jsonl')
 
-    # Load corpus
-    corpus = load_corpus(reviews_path, meta_path)
+    # Load corpus (limit to 70k for performance)
+    corpus = load_corpus(reviews_path, meta_path, max_rows=70000)
 
     # Build index
     collection, model = build_semantic_index(corpus)
@@ -122,6 +122,4 @@ if __name__ == "__main__":
         print(f"\n{i+1}. {r['display_title']}")
         print(f"   Score: {r['score']}")
         print(f"   Rating: {r['rating']}")
-
-
 
