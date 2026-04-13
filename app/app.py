@@ -33,3 +33,23 @@ def load_semantic():
     collection = client.get_collection("beauty_reviews")
     return collection, model
 
+# Sidebar - search options
+st.sidebar.header("Search Options")
+method = st.sidebar.radio("Retrieval Method", ["BM25", "Semantic"])
+top_k = st.sidebar.slider("Number of results", min_value=1, max_value=10, value=5)
+
+# Main search bar
+query = st.text_input("🔍 Enter your search query", placeholder="e.g. moisturizer for dry skin")
+
+if query:
+    st.markdown(f"### Results for: *{query}*")
+    
+    if method == "BM25":
+        with st.spinner("Searching with BM25..."):
+            bm25, corpus = load_bm25()
+            results = bm25_search(query, bm25, corpus, top_k=top_k)
+    else:
+        with st.spinner("Searching with Semantic Search..."):
+            collection, model = load_semantic()
+            results = semantic_search(query, collection, model, top_k=top_k)
+
