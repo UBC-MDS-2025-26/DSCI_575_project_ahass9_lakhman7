@@ -62,3 +62,44 @@ def build_semantic_index(corpus, collection_name="beauty_reviews", persist_dir="
     print(f"Semantic index built: {collection.count()} documents")
     return collection, model
 
+
+def semantic_search(query, collection, model, top_k=5):
+    """
+    Search the semantic index for the given query.
+    
+    Parameters
+    ----------
+    query : str
+        The search query.
+    collection : chromadb collection
+        The ChromaDB collection.
+    model : SentenceTransformer
+        The sentence transformer model.
+    top_k : int
+        Number of results to return.
+    
+    Returns
+    -------
+    list of dict
+        Top k results with scores.
+    """
+    query_embedding = model.encode([query]).tolist()
+    
+    results = collection.query(
+        query_embeddings=query_embedding,
+        n_results=top_k
+    )
+    
+    output = []
+    for i in range(len(results['ids'][0])):
+        output.append({
+            'doc_id': results['ids'][0][i],
+            'display_title': results['metadatas'][0][i]['display_title'],
+            'review_text': results['metadatas'][0][i]['review_text'],
+            'rating': results['metadatas'][0][i]['rating'],
+            'score': round(1 - results['distances'][0][i], 4)
+        })
+    
+    return output
+
+
