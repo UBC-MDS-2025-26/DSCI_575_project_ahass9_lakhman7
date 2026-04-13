@@ -223,3 +223,9 @@ BM25 returned mostly relevant gift sets but also included a mascara product that
 **Semantic search strengths:** Understands meaning and context, handles natural language queries better, captures user intent even when exact words differ. Best for queries like "product that won't break me out" or "something moisturizing for winter skin."
 
 **Overall recommendation:** A hybrid approach combining both methods would likely yield the best results, using BM25 for precision on specific product queries and semantic search for exploratory or natural language queries.
+
+---
+
+## Conclusion
+
+Overall, BM25 is the stronger choice for users who know exactly what they are looking for, while semantic search is better suited for exploratory queries where the user describes a need rather than a product. For a beauty product search engine, semantic search has a natural advantage since shoppers often describe problems or desired outcomes rather than exact product names.
