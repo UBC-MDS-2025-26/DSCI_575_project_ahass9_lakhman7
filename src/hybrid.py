@@ -103,3 +103,54 @@ def hybrid_retriever(query, bm25, corpus, collection, model, top_k=5, bm25_weigh
     # Sort by RRF score and return top_k
     ranked_ids = sorted(scores, key=lambda x: scores[x], reverse=True)[:top_k]
     return [docs_map[doc_id] for doc_id in ranked_ids]
+
+def hybrid_rag_pipeline(query, bm25, corpus, collection, model, top_k=5):
+    """
+    Full RAG pipeline using hybrid retriever.
+    
+    Parameters
+    ----------
+    query : str
+        The search query.
+    bm25 : BM25Okapi
+        The BM25 index.
+    corpus : list of dict
+        The original corpus.
+    collection : chromadb collection
+        The ChromaDB collection.
+    model : SentenceTransformer
+        The sentence transformer model.
+    top_k : int
+        Number of results to return.
+    
+    Returns
+    -------
+    dict
+        Query, answer, and retrieved docs.
+    """
+    # Step 1: Hybrid retrieval
+    docs = hybrid_retriever(query, bm25, corpus, collection, model, top_k=top_k)
+    
+    # Step 2: Build context
+    context = build_context(docs)
+    
+    # Step 3: Build prompt
+    prompt = build_prompt(query, context)
+    
+    # Step 4: Call LLM
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.7,
+        max_tokens=512
+    )
+    
+    answer = response.choices[0].message.content
+    
+    return {
+        "query": query,
+        "answer": answer,
+        "retrieved_docs": docs
+    }
