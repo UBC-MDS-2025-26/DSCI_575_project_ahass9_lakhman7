@@ -69,13 +69,13 @@ def rag_pipeline(query, collection, model, top_k=5):
     # Step 1: Retrieve
     docs = semantic_retriever(query, collection, model, top_k=top_k)
     
-    # Step 2: Build context
+    # Step 2: Building context
     context = build_context(docs)
     
-    # Step 3: Build prompt
+    # Step 3: Building prompt
     prompt = build_prompt(query, context)
     
-    # Step 4: Call LLM
+    # Step 4: Calling LLM
     response = client.chat.completions.create(
         model="llama3-8b-8192",
         messages=[
@@ -92,3 +92,11 @@ def rag_pipeline(query, collection, model, top_k=5):
         "answer": answer,
         "retrieved_docs": docs
     }
+
+if __name__ == "__main__":
+    collection, model = load_vector_store()
+    query = "What is a good moisturizer for dry skin?"
+    result = rag_pipeline(query, collection, model)
+    print(f"Query: {result['query']}")
+    print(f"\nAnswer:\n{result['answer']}")
+    print(f"\nRetrieved {len(result['retrieved_docs'])} documents")
