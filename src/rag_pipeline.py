@@ -34,3 +34,16 @@ def semantic_retriever(query, collection, model, top_k=5):
         })
     
     return docs
+
+def build_context(docs):
+    """Convert retrieved documents into a prompt-ready context block."""
+    context_parts = []
+    for i, doc in enumerate(docs, 1):
+        context_parts.append(
+            f"[{i}] Product: {doc['metadata'].get('display_title', 'N/A')}\n"
+            f"    ASIN: {doc['metadata'].get('asin', 'N/A')}\n"
+            f"    Rating: {doc['metadata'].get('rating', 'N/A')}/5\n"
+            f"    Review: {doc['metadata'].get('review_text', 'N/A')}"
+        )
+    return "\n\n".join(context_parts)
+
