@@ -131,13 +131,13 @@ def hybrid_rag_pipeline(query, bm25, corpus, collection, model, top_k=5):
     # Step 1: Hybrid retrieval
     docs = hybrid_retriever(query, bm25, corpus, collection, model, top_k=top_k)
     
-    # Step 2: Build context
+    # Step 2: Building context
     context = build_context(docs)
     
-    # Step 3: Build prompt
+    # Step 3: Building prompt
     prompt = build_prompt(query, context)
     
-    # Step 4: Call LLM
+    # Step 4: Calling LLM
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
@@ -154,3 +154,31 @@ def hybrid_rag_pipeline(query, bm25, corpus, collection, model, top_k=5):
         "answer": answer,
         "retrieved_docs": docs
     }
+
+if __name__ == "__main__":
+    from src.utils import load_corpus
+    from src.bm25 import build_bm25_index
+    from src.rag_pipeline import load_vector_store
+
+    reviews_path = os.path.join('data', 'raw', 'All_Beauty.jsonl')
+    meta_path = os.path.join('data', 'raw', 'meta_All_Beauty.jsonl')
+
+    print("Loading corpus...")
+    corpus = load_corpus(reviews_path, meta_path, max_rows=70000)
+
+    print("Building BM25 index...")
+    bm25, _ = build_bm25_index(corpus)
+
+    print("Loading vector store...")
+    collection, model = load_vector_store()
+
+    query = "What is a good moisturizer for dry skin?"
+    print(f"\nRunning hybrid RAG for: '{query}'")
+    result = hybrid_rag_pipeline(query, bm25, corpus, collection, model)
+
+    print(f"\nAnswer:\n{result['answer']}")
+    print(f"\nRetrieved {len(result['retrieved_docs'])} documents")
+    for i, doc in enumerate(result['retrieved_docs'], 1):
+        print(f"{i}. [{doc.get('source', 'N/A')}] {doc['metadata']['display_title']} (rating: {doc['metadata']['rating']})")
+
+    
