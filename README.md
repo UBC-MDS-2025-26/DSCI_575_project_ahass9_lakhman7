@@ -69,3 +69,106 @@ TAVILY_API_KEY=your_tavily_key_here
 
 - Get a free Groq API key at https://console.groq.com
 - Get a free Tavily API key at https://app.tavily.com
+
+---
+
+## Repository Structure
+
+```
+DSCI_575_project_ahass9_lakhman7/
+│
+├── README.md
+├── requirements.txt
+├── environment.yml
+├── .env                          # never commit secrets
+│
+├── data/
+│   ├── raw/                      # downloaded .jsonl files (gitignored)
+│   └── processed/                # indexes and embeddings (gitignored)
+│
+├── notebooks/
+│   ├── milestone1_exploration.ipynb
+│   └── milestone2_rag.ipynb
+│
+├── src/
+│   ├── utils.py                  # preprocessing and corpus utilities
+│   ├── bm25.py                   # BM25 retrieval
+│   ├── semantic.py               # semantic retrieval
+│   ├── rag_pipeline.py           # RAG pipeline with semantic retrieval
+│   ├── hybrid.py                 # hybrid retriever and hybrid RAG pipeline
+│   └── tools.py                  # Tavily web search tool
+│
+├── results/
+│   ├── milestone1_discussion.md
+│   └── milestone2_discussion.md
+│
+└── app/
+    └── app.py                     # Streamlit web app
+```
+
+---
+
+## Workflow
+
+### 1. Data Exploration
+Open and run `notebooks/milestone1_exploration.ipynb` to explore and preprocess the dataset.
+
+### 2. Build BM25 Index
+```bash
+python src/bm25.py
+```
+
+### 3. Build Semantic Index
+```bash
+python src/semantic.py
+```
+
+### 4. Run RAG Pipeline
+```bash
+python src/rag_pipeline.py
+```
+
+### 5. Run Hybrid RAG Pipeline
+```bash
+python src/hybrid.py
+```
+
+### 6. Launch the App
+```bash
+streamlit run app/app.py
+```
+
+---
+
+## Retrieval Methods
+
+| Method | Library | Index |
+|---|---|---|
+| BM25 | `rank-bm25` | Pickled BM25 object |
+| Semantic | `sentence-transformers` + `ChromaDB` | Persistent Chroma vector store |
+| Hybrid | BM25 + Semantic with Reciprocal Rank Fusion | Combined |
+
+---
+
+## RAG Pipeline
+
+The RAG pipeline (`src/rag_pipeline.py`) follows three stages:
+
+1. **Retriever**: semantic search retrieves top-k relevant reviews from ChromaDB
+2. **Context Builder**: formats retrieved reviews into a structured prompt
+3. **LLM Generator**: Groq's `llama-3.3-70b-versatile` generates a grounded answer
+
+The hybrid RAG pipeline (`src/hybrid.py`) replaces the semantic retriever with a hybrid retriever that combines BM25 and semantic search using Reciprocal Rank Fusion (RRF), weighting BM25 at 40% and semantic search at 60%.
+
+---
+
+## Web Search Tool
+
+`src/tools.py` implements a Tavily-powered web search tool that can augment RAG answers with live web results. In the app, users can optionally enable this tool in RAG Mode to supplement review-based answers with current information from the web.
+
+---
+
+## Results and Discussion
+
+- `results/milestone1_discussion.md` — qualitative evaluation of BM25 vs semantic search across 10 queries
+- `results/milestone2_discussion.md` — qualitative evaluation of the hybrid RAG pipeline across 5 queries, including model choice rationale, key observations, limitations, and future improvements
