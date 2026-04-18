@@ -34,3 +34,9 @@ def web_search(query, max_results=3):
         return "No web results found."
     
     return "\n\n".join(snippets)
+
+if __name__ == "__main__":
+    query = "best moisturizer for dry skin 2024"
+    print(f"Searching for: {query}\n")
+    results = web_search(query)
+    print(results)
