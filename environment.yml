@@ -12,6 +12,7 @@ dependencies:
   - matplotlib
   - seaborn
   - tqdm
+  - groq
   - pip:
     - rank-bm25
     - sentence-transformers
@@ -21,3 +22,4 @@ dependencies:
     - langchain-chroma
     - streamlit
     - python-dotenv
+GROQ_API_KEY=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
