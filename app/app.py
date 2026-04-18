@@ -21,3 +21,14 @@ st.set_page_config(
 
 st.title("💄 Beauty Product Search")
 st.markdown("Search Amazon All_Beauty reviews using BM25, Semantic Search, or RAG.")
+
+@st.cache_resource
+def load_bm25():
+    bm25 = load_pickle(os.path.join('data', 'processed', 'bm25_index.pkl'))
+    corpus = load_pickle(os.path.join('data', 'processed', 'corpus.pkl'))
+    return bm25, corpus
+
+@st.cache_resource
+def load_semantic():
+    collection, model = load_vector_store()
+    return collection, model
