@@ -64,3 +64,31 @@ User Question:
 
 Answer based only on the above reviews:"""
 
+def rag_pipeline(query, collection, model, top_k=5):
+    """Full RAG pipeline: retrieve -> build context -> prompt -> LLM."""
+    # Step 1: Retrieve
+    docs = semantic_retriever(query, collection, model, top_k=top_k)
+    
+    # Step 2: Build context
+    context = build_context(docs)
+    
+    # Step 3: Build prompt
+    prompt = build_prompt(query, context)
+    
+    # Step 4: Call LLM
+    response = client.chat.completions.create(
+        model="llama3-8b-8192",
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.7,
+        max_tokens=512
+    )
+    
+    answer = response.choices[0].message.content
+    
+    return {
+        "query": query,
+        "answer": answer,
+        "retrieved_docs": docs
+    }
