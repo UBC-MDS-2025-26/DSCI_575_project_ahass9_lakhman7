@@ -47,3 +47,20 @@ def build_context(docs):
         )
     return "\n\n".join(context_parts)
 
+SYSTEM_PROMPT = """You are a helpful Amazon beauty product shopping assistant.
+Answer the user's question using ONLY the provided product reviews and metadata.
+Be concise, specific, and always reference the product title when making recommendations.
+If the context does not contain enough information, say so honestly."""
+
+def build_prompt(query, context):
+    """Build a prompt combining the system prompt, context, and user query."""
+    return f"""{SYSTEM_PROMPT}
+
+Context (retrieved product reviews):
+{context}
+
+User Question:
+{query}
+
+Answer based only on the above reviews:"""
+
