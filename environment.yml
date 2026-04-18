@@ -1,0 +1,23 @@
+name: 575-beauty-retrieval
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pandas
+  - jupyter
+  - ipykernel
+  - matplotlib
+  - seaborn
+  - tqdm
+  - pip:
+    - rank-bm25
+    - sentence-transformers
+    - chromadb
+    - langchain
+    - langchain-community
+    - langchain-chroma
+    - streamlit
+    - python-dotenv
