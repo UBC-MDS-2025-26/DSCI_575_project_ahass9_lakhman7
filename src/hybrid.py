@@ -50,3 +50,56 @@ def bm25_retriever(query, bm25, corpus, top_k=5):
     
     return docs
 
+def hybrid_retriever(query, bm25, corpus, collection, model, top_k=5, bm25_weight=0.4, semantic_weight=0.6):
+    """
+    Hybrid retriever combining BM25 and semantic search using Reciprocal Rank Fusion.
+    
+    Parameters
+    ----------
+    query : str
+        The search query.
+    bm25 : BM25Okapi
+        The BM25 index.
+    corpus : list of dict
+        The original corpus.
+    collection : chromadb collection
+        The ChromaDB collection.
+    model : SentenceTransformer
+        The sentence transformer model.
+    top_k : int
+        Number of results to return.
+    bm25_weight : float
+        Weight for BM25 results.
+    semantic_weight : float
+        Weight for semantic results.
+    
+    Returns
+    -------
+    list of dict
+        Top k re-ranked results.
+    """
+    # Get results from both retrievers
+    bm25_results = bm25_retriever(query, bm25, corpus, top_k=top_k)
+    semantic_results = semantic_retriever(query, collection, model, top_k=top_k)
+
+    # Reciprocal Rank Fusion
+    k = 60  # RRF constant
+    scores = {}
+    docs_map = {}
+
+    for rank, doc in enumerate(bm25_results):
+        doc_id = doc['id']
+        scores[doc_id] = scores.get(doc_id, 0) + bm25_weight * (1 / (k + rank + 1))
+        doc['source'] = 'bm25'
+        docs_map[doc_id] = doc
+
+    for rank, doc in enumerate(semantic_results):
+        doc_id = doc['id']
+        scores[doc_id] = scores.get(doc_id, 0) + semantic_weight * (1 / (k + rank + 1))
+        if doc_id not in docs_map:
+            doc['source'] = 'semantic'
+            docs_map[doc_id] = doc
+
+    # Sort by RRF score and return top_k
+    ranked_ids = sorted(scores, key=lambda x: scores[x], reverse=True)[:top_k]
+    return [docs_map[doc_id] for doc_id in ranked_ids]
