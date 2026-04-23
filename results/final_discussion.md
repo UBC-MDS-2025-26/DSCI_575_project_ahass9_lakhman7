@@ -95,3 +95,41 @@ A Tavily-powered web search tool was implemented in `src/tools.py`. It allows th
 ### Did It Improve Results?
 
 Yes — the tool is most useful for queries where the review corpus lacks sufficient coverage or where current/external information adds value (e.g. ingredient science, trending products). For straightforward product queries well-covered by the corpus, the web search is redundant but not harmful.
+## Step 3: Improve Documentation and Code Quality
+
+### Documentation Update
+
+The `README.md` was significantly expanded for the final submission. Key improvements include:
+
+- Added a full project overview describing the end-to-end workflow: data ingestion, BM25 indexing, semantic indexing with ChromaDB, hybrid retrieval using Reciprocal Rank Fusion, RAG pipeline with Groq LLM, and optional Tavily web search augmentation
+- Added separate sections describing each component: BM25 search, semantic search, hybrid retrieval, RAG pipeline, and tool integration
+- Added clear setup instructions including environment setup, data download, index building, and app launch
+- Added usage examples for both Search Only and RAG Mode tabs
+- Added a description of new Milestone 3 features: LLM comparison, Tavily web search integration, and updated app interface
+
+### Code Quality Changes
+
+- All functions across `src/bm25.py`, `src/semantic.py`, `src/hybrid.py`, `src/utils.py`, `src/rag_pipeline.py`, `src/tools.py`, and `app/app.p- All functions across `src/bm25.py`, `src/seman all paths use `os.path.join(- All functions across `src/bm25.py`, `src/semantic.py`, `src/hybrid.py`, `src/utils.py`, `srrom `.env` (gitignored)
+- `environment.yml` updated to include all dependencies including `tavily-python`, `groq`, `chromadb`, `sentence-transformers`, and `streamlit`
+- `.gitignore` includes `.env`, `data/`, and `__pycache__`
+- Temporary and junk files removed from repository
+
+---
+
+## Step 4: Cloud Deployment Plan
+
+### Data Storage
+
+**Raw data** (JSONL review and metadata files) would be stored in **AWS S3** in a versioned bucket (e.g. `s3://beauty-rag/data/raw/`). S3 is chosen for its low cost, durability, and native integration with other AWS services. Processed data (serialized corpus, pickled BM25 index) would also be stored in S3 (e.g. `s3://beauty-rag/data/processed/`), loaded into the app container at startup.
+
+**Vector index** (ChromaDB) would be persisted to S3 and loaded into the app's local filesystem at container startup. For higher-traffic scenarios, it could be migrated to a managed vector database such as **Pinecone** or **Weaviate** to support concurrent reads without loading the full index into memory per instance.**Vector index** (ChromaDB) would be persisted to S3 and loaded into the app's local filesystem at container startup. For higher-traffic scenad,**Vector index** (ChromaDB) would be persisted to S3 and e.**Vector index** (ChromaDB) would be persisted tomli**app**Vector index** (ChromaDB) woucker and deployed on **Vector index** (ChromaDB) would be persisted to S3 and loaded into the app's local filesystem at container startup. For higher-traffic scenarios, it could be migrated to a managed vector database such as **Pinecone** or **Weaviate** to support concurrent reads without loading the full index into memory per instance.**Vector index** (ChromaDB) would be persisted to S3 and loaded into th can each load their own copy without conflict. For higher scale, indices could be moved to a shared managed service (Pinecone, OpenSearch) to avoid redundant loading.
+
+**LLM inference**: The pipeline uses the **Groq API** (`llama-3.3-70b-versatile`) for LLM inference. This is a managed API approach — no GPU instances are required. Groq handles model hosting and provides low-latency inference. This is the right choice for this use case: it avoids the operational complexity and cost of self-hosting a 70B model on a GPU instance. If data privacy requirements precluded external APIs, the alternative would be deploying a smaller quantized model on an AWS EC2 `g4dn` GPU instance.
+
+### Streaming / Updates
+
+**Incorporating new products**: New reviews would be ingested via a scheduled **AWS Lambda** function or **AWS Glue** ETL job triggered on a weekly or monthly cadence. The job would download new review data, preprocess it using `src/utils.py`, and append new documents to the corpus.
+
+**Index updates**: New documen**Index updates**: New documen**Index updates**: New documen**Index updates**: New documen**Index updates**: New documen**Index updates**: New documen**Index updatemental updates). Both updated indices would be re-uploaded to S3 and ECS tasks restarted to pick up the new versions.
+
+**Architectural justification**: The batch re-indexing approach is appropriate here because beauty product reviews do not change in real time — weekly or monthly updates are sufficient. A streaming pipeline (e.g. Kafka + real-time index updates) would add significant complexity without meaningful benefit for this use case.

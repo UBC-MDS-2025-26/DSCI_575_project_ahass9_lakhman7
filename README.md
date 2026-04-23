@@ -42,6 +42,30 @@ curl -L -o data/raw/meta_All_Beauty.jsonl "https://huggingface.co/datasets/McAul
 
 ---
 
+## Data Processing
+
+Raw data is loaded and preprocessed in `src/utils.py`. The pipeline joins review data with product metadata on the `asin` field.
+
+**Fields used from reviews (`All_Beauty.jsonl`):**
+- `asin` — product identifier for joining with metadata
+- `rating` — numeric star rating (1–5)
+- `text` — review body text
+
+**Fields used from metadata (`meta_All_Beauty.jsonl`):**
+- `asin` — product identifier
+- `title` — product display title
+- `description` — product description
+- `features` — product features joined into a single string
+
+**Preprocessing steps** (applied in `preprocess_text()`):
+1. Lowercase all text
+2. Remove punctuation
+3. Strip extra whitespace
+
+The full corpus is serialized to `data/processed/corpus.pkl` for reuse across BM25 and semantic indexing.
+
+---
+
 ## Setup
 
 ### 1. Clone the repository
@@ -150,6 +174,18 @@ streamlit run app/app.py
 
 ---
 
+### BM25 (`src/bm25.py`)
+BM25 is a classical keyword-based ranking function. Each document is tokenized by preprocessing (lowercase, remove punctuation, split on whitespace) and indexed using the `rank-bm25` library. At query time, the query is tokenized the same way and scored against all documents using the BM25 formula, which accounts for term frequency, inverse document frequency, and document length normalization. The top-k highest scoring documents are returned. The index is saved to `data/processed/bm25_index.pkl` for reuse.
+
+**Returns per result:** `display_title`, `review_text`, `rating`, `asin`, BM25 `score`
+
+### Semantic Search (`src/semantic.py`)
+Semantic search uses dense vector embeddings to find documents semantically similar to a query, even if they share no keywords. Each document is embedded using `all-MiniLM-L6-v2` from `sentence-transformers` and stored in a persistent ChromaDB vector store at `data/processed/chroma/`. At query time, the query is embedded using the same model and the top-k nearest neighbours are retrieved by cosine similarity. Embeddings are computed once and persisted to avoid recomputation.
+
+**Returns per result:** `display_title`, `review_text`, `rating`, `asin`, similarity `score`
+
+---
+
 ## RAG Pipeline
 
 The RAG pipeline (`src/rag_pipeline.py`) follows three stages:
@@ -172,3 +208,4 @@ The hybrid RAG pipeline (`src/hybrid.py`) replaces the semantic retriever with a
 
 - `results/milestone1_discussion.md` — qualitative evaluation of BM25 vs semantic search across 10 queries
 - `results/milestone2_discussion.md` — qualitative evaluation of the hybrid RAG pipeline across 5 queries, including model choice rationale, key observations, limitations, and future improvements
+- `results/final_discussion.md` — dataset scaling, LLM comparison (70B vs 8B), tool integration results, code quality summary, and cloud deployment plan
