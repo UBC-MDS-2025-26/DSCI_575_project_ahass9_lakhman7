@@ -208,3 +208,4 @@ The hybrid RAG pipeline (`src/hybrid.py`) replaces the semantic retriever with a
 
 - `results/milestone1_discussion.md` — qualitative evaluation of BM25 vs semantic search across 10 queries
 - `results/milestone2_discussion.md` — qualitative evaluation of the hybrid RAG pipeline across 5 queries, including model choice rationale, key observations, limitations, and future improvements
+- `results/final_discussion.md` — dataset scaling, LLM comparison (70B vs 8B), tool integration results, code quality summary, and cloud deployment plan
