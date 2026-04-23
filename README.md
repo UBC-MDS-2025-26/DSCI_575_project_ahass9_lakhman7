@@ -42,6 +42,30 @@ curl -L -o data/raw/meta_All_Beauty.jsonl "https://huggingface.co/datasets/McAul
 
 ---
 
+## Data Processing
+
+Raw data is loaded and preprocessed in `src/utils.py`. The pipeline joins review data with product metadata on the `asin` field.
+
+**Fields used from reviews (`All_Beauty.jsonl`):**
+- `asin` — product identifier for joining with metadata
+- `rating` — numeric star rating (1–5)
+- `text` — review body text
+
+**Fields used from metadata (`meta_All_Beauty.jsonl`):**
+- `asin` — product identifier
+- `title` — product display title
+- `description` — product description
+- `features` — product features joined into a single string
+
+**Preprocessing steps** (applied in `preprocess_text()`):
+1. Lowercase all text
+2. Remove punctuation
+3. Strip extra whitespace
+
+The full corpus is serialized to `data/processed/corpus.pkl` for reuse across BM25 and semantic indexing.
+
+---
+
 ## Setup
 
 ### 1. Clone the repository
