@@ -150,6 +150,18 @@ streamlit run app/app.py
 
 ---
 
+### BM25 (`src/bm25.py`)
+BM25 is a classical keyword-based ranking function. Each document is tokenized by preprocessing (lowercase, remove punctuation, split on whitespace) and indexed using the `rank-bm25` library. At query time, the query is tokenized the same way and scored against all documents using the BM25 formula, which accounts for term frequency, inverse document frequency, and document length normalization. The top-k highest scoring documents are returned. The index is saved to `data/processed/bm25_index.pkl` for reuse.
+
+**Returns per result:** `display_title`, `review_text`, `rating`, `asin`, BM25 `score`
+
+### Semantic Search (`src/semantic.py`)
+Semantic search uses dense vector embeddings to find documents semantically similar to a query, even if they share no keywords. Each document is embedded using `all-MiniLM-L6-v2` from `sentence-transformers` and stored in a persistent ChromaDB vector store at `data/processed/chroma/`. At query time, the query is embedded using the same model and the top-k nearest neighbours are retrieved by cosine similarity. Embeddings are computed once and persisted to avoid recomputation.
+
+**Returns per result:** `display_title`, `review_text`, `rating`, `asin`, similarity `score`
+
+---
+
 ## RAG Pipeline
 
 The RAG pipeline (`src/rag_pipeline.py`) follows three stages:
