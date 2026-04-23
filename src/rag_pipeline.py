@@ -93,6 +93,36 @@ def rag_pipeline(query, collection, model, top_k=5):
         "retrieved_docs": docs
     }
 
+def rag_pipeline_with_model(query, collection, model, llm_model, top_k=5):
+    """Run RAG pipeline with a specified LLM model for comparison."""
+    # Step 1: Retrieve
+    docs = semantic_retriever(query, collection, model, top_k=top_k)
+    
+    # Step 2: Build context
+    context = build_context(docs)
+    
+    # Step 3: Build prompt
+    prompt = build_prompt(query, context)
+    
+    # Step 4: Call LLM with specified model
+    response = client.chat.completions.create(
+        model=llm_model,
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.7,
+        max_tokens=512
+    )
+    
+    answer = response.choices[0].message.content
+    
+    return {
+        "query": query,
+        "answer": answer,
+        "retrieved_docs": docs,
+        "model": llm_model
+    }
+
 if __name__ == "__main__":
     collection, model = load_vector_store()
     query = "What is a good moisturizer for dry skin?"

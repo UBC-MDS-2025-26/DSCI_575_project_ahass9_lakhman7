@@ -24,12 +24,14 @@ st.markdown("Search Amazon All_Beauty reviews using BM25, Semantic Search, or RA
 
 @st.cache_resource
 def load_bm25():
+    """Load the BM25 index and corpus from disk."""
     bm25 = load_pickle(os.path.join('data', 'processed', 'bm25_index.pkl'))
     corpus = load_pickle(os.path.join('data', 'processed', 'corpus.pkl'))
     return bm25, corpus
 
 @st.cache_resource
 def load_semantic():
+    """Load the ChromaDB collection and sentence transformer model."""
     collection, model = load_vector_store()
     return collection, model
 
